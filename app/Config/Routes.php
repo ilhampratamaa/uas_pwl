@@ -50,6 +50,15 @@ $routes->group('admin', ['namespace' => 'App\Controllers\Admin', 'filter' => 'au
 
 $routes->get('product/(:num)', 'Buyer\ProductController::detail/$1');
 
+// Rute untuk Pembayaran Xendit (Dipindahkan keluar dari grup 'buyer')
+// Karena PaymentController berada di namespace App\Controllers (root)
+$routes->get('payment/checkout', 'App\Controllers\PaymentController::checkout', ['filter' => 'auth:buyer']); // Halaman untuk memulai pembayaran, butuh login buyer
+$routes->post('payment/create-invoice', 'App\Controllers\PaymentController::createInvoice', ['filter' => 'auth:buyer']); // Endpoint untuk membuat invoice Xendit, butuh login buyer
+$routes->get('payment/success', 'App\Controllers\PaymentController::success'); // Redirect setelah pembayaran sukses (tidak perlu filter)
+$routes->get('payment/failed', 'App\Controllers\PaymentController::failed');   // Redirect setelah pembayaran gagal (tidak perlu filter)
+$routes->post('payment/xendit-webhook', 'App\Controllers\PaymentController::xenditWebhook'); // Endpoint untuk menerima webhook dari Xendit (tidak perlu filter)
+
+
 $routes->group('buyer', ['namespace' => 'App\Controllers\Buyer', 'filter' => 'auth:buyer'], function($routes) {
 
     $routes->get('cart', 'CartController::index');
